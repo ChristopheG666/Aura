@@ -39,23 +39,23 @@ LV_FONT_DECLARE(lv_font_montserrat_latin_42);
 static Language current_language = LANG_EN;
 
 // Font selection based on language
-const lv_font_t* get_font_12() {
+const lv_font_t *get_font_12() {
   return &lv_font_montserrat_latin_12;
 }
 
-const lv_font_t* get_font_14() {
+const lv_font_t *get_font_14() {
   return &lv_font_montserrat_latin_14;
 }
 
-const lv_font_t* get_font_16() {
+const lv_font_t *get_font_16() {
   return &lv_font_montserrat_latin_16;
 }
 
-const lv_font_t* get_font_20() {
+const lv_font_t *get_font_20() {
   return &lv_font_montserrat_latin_20;
 }
 
-const lv_font_t* get_font_42() {
+const lv_font_t *get_font_42() {
   return &lv_font_montserrat_latin_42;
 }
 
@@ -67,7 +67,7 @@ int x, y, z;
 // Preferences
 static Preferences prefs;
 static bool use_fahrenheit = false;
-static bool use_24_hour = false; 
+static bool use_24_hour = false;
 static bool use_night_mode = false;
 static char latitude[16] = LATITUDE_DEFAULT;
 static char longitude[16] = LONGITUDE_DEFAULT;
@@ -189,17 +189,17 @@ int day_of_week(int y, int m, int d) {
 }
 
 String hour_of_day(int hour) {
-  const LocalizedStrings* strings = get_strings(current_language);
-  if(hour < 0 || hour > 23) return String(strings->invalid_hour);
+  const LocalizedStrings *strings = get_strings(current_language);
+  if (hour < 0 || hour > 23) return String(strings->invalid_hour);
 
   if (use_24_hour) {
     if (hour < 10)
-      return String("0") + String(hour);
+      return String("0") + String(hour) + String(":00"); // Nicer 24hr formatting;
     else
-      return String(hour);
+      return String(hour) + String(":00"); // Nicer 24hr formatting;
   } else {
-    if(hour == 0)   return String("12") + strings->am;
-    if(hour == 12)  return String(strings->noon);
+    if (hour == 0) return String("12") + strings->am;
+    if (hour == 12) return String(strings->noon);
 
     bool isMorning = (hour < 12);
     String suffix = isMorning ? strings->am : strings->pm;
@@ -234,13 +234,13 @@ static void update_clock(lv_timer_t *timer) {
 
   if (!getLocalTime(&timeinfo)) return;
 
-  const LocalizedStrings* strings = get_strings(current_language);
+  const LocalizedStrings *strings = get_strings(current_language);
   char buf[16];
   if (use_24_hour) {
     snprintf(buf, sizeof(buf), "%02d:%02d", timeinfo.tm_hour, timeinfo.tm_min);
   } else {
     int hour = timeinfo.tm_hour % 12;
-    if(hour == 0) hour = 12;
+    if (hour == 0) hour = 12;
     const char *ampm = (timeinfo.tm_hour < 12) ? strings->am : strings->pm;
     snprintf(buf, sizeof(buf), "%d:%02d%s", hour, timeinfo.tm_min, ampm);
   }
@@ -285,19 +285,19 @@ void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data) {
     if (night_mode_active) {
       // Temporarily wake the screen for 15 seconds
       analogWrite(LCD_BACKLIGHT_PIN, prefs.getUInt("brightness", 128));
-    
+
       if (temp_screen_wakeup_timer) {
         lv_timer_del(temp_screen_wakeup_timer);
       }
       temp_screen_wakeup_timer = lv_timer_create(handle_temp_screen_wakeup_timeout, 15000, NULL);
-      lv_timer_set_repeat_count(temp_screen_wakeup_timer, 1); // Run only once
+      lv_timer_set_repeat_count(temp_screen_wakeup_timer, 1);  // Run only once
       Serial.println("Woke up screen. Setting timer to turn of screen after 15 seconds of inactivity.");
 
       if (!temp_screen_wakeup_active) {
-          // If this is the wake-up tap, don't pass this touch to the UI - just undim the screen
-          temp_screen_wakeup_active = true;
-          data->state = LV_INDEV_STATE_RELEASED;
-          return;
+        // If this is the wake-up tap, don't pass this touch to the UI - just undim the screen
+        temp_screen_wakeup_active = true;
+        data->state = LV_INDEV_STATE_RELEASED;
+        return;
       }
 
       temp_screen_wakeup_active = true;
@@ -391,7 +391,7 @@ void wifi_splash_screen() {
   lv_obj_set_style_bg_grad_dir(scr, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
   lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-  const LocalizedStrings* strings = get_strings(current_language);
+  const LocalizedStrings *strings = get_strings(current_language);
   lv_obj_t *lbl = lv_label_create(scr);
   lv_label_set_text(lbl, strings->wifi_config);
   lv_obj_set_style_text_font(lbl, get_font_14(), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -419,7 +419,7 @@ void create_ui() {
   lv_style_set_text_color(&default_label_style, lv_color_hex(0xFFFFFF));
   lv_style_set_text_opa(&default_label_style, LV_OPA_COVER);
 
-  const LocalizedStrings* strings = get_strings(current_language);
+  const LocalizedStrings *strings = get_strings(current_language);
 
   lbl_today_temp = lv_label_create(scr);
   lv_label_set_text(lbl_today_temp, strings->temp_placeholder);
@@ -511,7 +511,7 @@ void create_ui() {
     lv_obj_align(img_hourly[i], LV_ALIGN_TOP_LEFT, 72, i * 24);
   }
 
-  lv_obj_add_flag(box_hourly, LV_OBJ_FLAG_HIDDEN);
+  lv_obj_add_flag(box_daily, LV_OBJ_FLAG_HIDDEN);
 
   // Create clock label in the top-right corner
   lbl_clock = lv_label_create(scr);
@@ -587,14 +587,14 @@ void screen_event_cb(lv_event_t *e) {
 }
 
 void daily_cb(lv_event_t *e) {
-  const LocalizedStrings* strings = get_strings(current_language);
+  const LocalizedStrings *strings = get_strings(current_language);
   lv_obj_add_flag(box_daily, LV_OBJ_FLAG_HIDDEN);
   lv_label_set_text(lbl_forecast, strings->hourly_forecast);
   lv_obj_clear_flag(box_hourly, LV_OBJ_FLAG_HIDDEN);
 }
 
 void hourly_cb(lv_event_t *e) {
-  const LocalizedStrings* strings = get_strings(current_language);
+  const LocalizedStrings *strings = get_strings(current_language);
   lv_obj_add_flag(box_hourly, LV_OBJ_FLAG_HIDDEN);
   lv_label_set_text(lbl_forecast, strings->seven_day_forecast);
   lv_obj_clear_flag(box_daily, LV_OBJ_FLAG_HIDDEN);
@@ -602,7 +602,7 @@ void hourly_cb(lv_event_t *e) {
 
 
 static void reset_wifi_event_handler(lv_event_t *e) {
-  const LocalizedStrings* strings = get_strings(current_language);
+  const LocalizedStrings *strings = get_strings(current_language);
   lv_obj_t *mbox = lv_msgbox_create(lv_scr_act());
   lv_obj_t *title = lv_msgbox_add_title(mbox, strings->reset);
   lv_obj_set_style_margin_left(title, 10, 0);
@@ -626,7 +626,7 @@ static void reset_wifi_event_handler(lv_event_t *e) {
 
   lv_obj_set_style_border_width(mbox, 2, LV_PART_MAIN);
   lv_obj_set_style_border_color(mbox, lv_color_black(), LV_PART_MAIN);
-  lv_obj_set_style_border_opa(mbox, LV_OPA_COVER,   LV_PART_MAIN);
+  lv_obj_set_style_border_opa(mbox, LV_OPA_COVER, LV_PART_MAIN);
   lv_obj_set_style_radius(mbox, 4, LV_PART_MAIN);
 
   lv_obj_add_event_cb(btn_yes, reset_confirm_yes_cb, LV_EVENT_CLICKED, mbox);
@@ -654,7 +654,7 @@ static void change_location_event_cb(lv_event_t *e) {
 }
 
 void create_location_dialog() {
-  const LocalizedStrings* strings = get_strings(current_language);
+  const LocalizedStrings *strings = get_strings(current_language);
   location_win = lv_win_create(lv_scr_act());
   lv_obj_t *title = lv_win_add_title(location_win, strings->change_location);
   lv_obj_t *header = lv_win_get_header(location_win);
@@ -728,7 +728,7 @@ void create_settings_window() {
 
   int vertical_element_spacing = 21;
 
-  const LocalizedStrings* strings = get_strings(current_language);
+  const LocalizedStrings *strings = get_strings(current_language);
   settings_win = lv_win_create(lv_scr_act());
 
   lv_obj_t *header = lv_win_get_header(settings_win);
@@ -755,12 +755,14 @@ void create_settings_window() {
   lv_obj_set_width(slider, 100);
   lv_obj_align_to(slider, lbl_b, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
 
-  lv_obj_add_event_cb(slider, [](lv_event_t *e){
-    lv_obj_t *s = (lv_obj_t*)lv_event_get_target(e);
-    uint32_t v = lv_slider_get_value(s);
-    analogWrite(LCD_BACKLIGHT_PIN, v);
-    prefs.putUInt("brightness", v);
-  }, LV_EVENT_VALUE_CHANGED, NULL);
+  lv_obj_add_event_cb(
+    slider, [](lv_event_t *e) {
+      lv_obj_t *s = (lv_obj_t *)lv_event_get_target(e);
+      uint32_t v = lv_slider_get_value(s);
+      analogWrite(LCD_BACKLIGHT_PIN, v);
+      prefs.putUInt("brightness", v);
+    },
+    LV_EVENT_VALUE_CHANGED, NULL);
 
   // 'Night mode' switch
   lv_obj_t *lbl_night_mode = lv_label_create(cont);
@@ -904,7 +906,7 @@ static void settings_event_handler(lv_event_t *e) {
     // Update the UI immediately to reflect language change
     lv_obj_del(settings_win);
     settings_win = nullptr;
-    
+
     // Save preferences and recreate UI with new language
     prefs.putBool("useFahrenheit", use_fahrenheit);
     prefs.putBool("use24Hour", use_24_hour);
@@ -913,7 +915,7 @@ static void settings_event_handler(lv_event_t *e) {
 
     lv_keyboard_set_textarea(kb, nullptr);
     lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
-    
+
     // Recreate the main UI with the new language
     lv_obj_clean(lv_scr_act());
     create_ui();
@@ -943,7 +945,7 @@ bool night_mode_should_be_active() {
   if (!getLocalTime(&timeinfo)) return false;
 
   if (!use_night_mode) return false;
-  
+
   int hour = timeinfo.tm_hour;
   return (hour >= NIGHT_MODE_START_HOUR || hour < NIGHT_MODE_END_HOUR);
 }
@@ -976,7 +978,7 @@ void handle_temp_screen_wakeup_timeout(lv_timer_t *timer) {
       activate_night_mode();
     }
   }
-  
+
   if (temp_screen_wakeup_timer) {
     lv_timer_del(temp_screen_wakeup_timer);
     temp_screen_wakeup_timer = nullptr;
@@ -996,10 +998,10 @@ void do_geocode_query(const char *q) {
       geoResults = geoDoc["results"].as<JsonArray>();
       populate_results_dropdown();
     } else {
-        Serial.println("Failed to parse search response from open-meteo: " + url);
+      Serial.println("Failed to parse search response from open-meteo: " + url);
     }
   } else {
-      Serial.println("Failed location search at open-meteo: " + url);
+    Serial.println("Failed location search at open-meteo: " + url);
   }
   http.end();
 }
@@ -1008,12 +1010,12 @@ void fetch_and_update_weather() {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("WiFi no longer connected. Attempting to reconnect...");
     WiFi.disconnect();
-    WiFiManager wm;  
+    WiFiManager wm;
     wm.autoConnect(DEFAULT_CAPTIVE_SSID);
-    delay(1000);  
-    if (WiFi.status() != WL_CONNECTED) { 
+    delay(1000);
+    if (WiFi.status() != WL_CONNECTED) {
       Serial.println("WiFi connection still unavailable.");
-      return;   
+      return;
     }
     Serial.println("WiFi connection reestablished.");
   }
@@ -1046,7 +1048,7 @@ void fetch_and_update_weather() {
         t_now = t_now * 9.0 / 5.0 + 32.0;
         t_ap = t_ap * 9.0 / 5.0 + 32.0;
       }
-      const LocalizedStrings* strings = get_strings(current_language);
+      const LocalizedStrings *strings = get_strings(current_language);
 
       int utc_offset_seconds = doc["utc_offset_seconds"].as<int>();
       configTime(utc_offset_seconds, 0, "pool.ntp.org", "time.nist.gov");
@@ -1122,28 +1124,28 @@ void fetch_and_update_weather() {
   http.end();
 }
 
-const lv_img_dsc_t* choose_image(int code, int is_day) {
+const lv_img_dsc_t *choose_image(int code, int is_day) {
   switch (code) {
     // Clear sky
-    case  0:
+    case 0:
       return is_day
-        ? &image_sunny
-        : &image_clear_night;
+               ? &image_sunny
+               : &image_clear_night;
 
     // Mainly clear
-    case  1:
+    case 1:
       return is_day
-        ? &image_mostly_sunny
-        : &image_mostly_clear_night;
+               ? &image_mostly_sunny
+               : &image_mostly_clear_night;
 
     // Partly cloudy
-    case  2:
+    case 2:
       return is_day
-        ? &image_partly_cloudy
-        : &image_partly_cloudy_night;
+               ? &image_partly_cloudy
+               : &image_partly_cloudy_night;
 
     // Overcast
-    case  3:
+    case 3:
       return &image_cloudy;
 
     // Fog / mist
@@ -1165,8 +1167,8 @@ const lv_img_dsc_t* choose_image(int code, int is_day) {
     // Rain: slight showers
     case 61:
       return is_day
-        ? &image_scattered_showers_day
-        : &image_scattered_showers_night;
+               ? &image_scattered_showers_day
+               : &image_scattered_showers_night;
 
     // Rain: moderate
     case 63:
@@ -1196,8 +1198,8 @@ const lv_img_dsc_t* choose_image(int code, int is_day) {
     case 80:
     case 81:
       return is_day
-        ? &image_scattered_showers_day
-        : &image_scattered_showers_night;
+               ? &image_scattered_showers_day
+               : &image_scattered_showers_night;
 
     // Rain showers: violent
     case 82:
@@ -1210,8 +1212,8 @@ const lv_img_dsc_t* choose_image(int code, int is_day) {
     // Thunderstorm (light)
     case 95:
       return is_day
-        ? &image_isolated_scattered_tstorms_day
-        : &image_isolated_scattered_tstorms_night;
+               ? &image_isolated_scattered_tstorms_day
+               : &image_isolated_scattered_tstorms_night;
 
     // Thunderstorm with hail
     case 96:
@@ -1221,33 +1223,33 @@ const lv_img_dsc_t* choose_image(int code, int is_day) {
     // Fallback for any other code
     default:
       return is_day
-        ? &image_mostly_cloudy_day
-        : &image_mostly_cloudy_night;
+               ? &image_mostly_cloudy_day
+               : &image_mostly_cloudy_night;
   }
 }
 
-const lv_img_dsc_t* choose_icon(int code, int is_day) {
+const lv_img_dsc_t *choose_icon(int code, int is_day) {
   switch (code) {
     // Clear sky
-    case  0:
+    case 0:
       return is_day
-        ? &icon_sunny
-        : &icon_clear_night;
+               ? &icon_sunny
+               : &icon_clear_night;
 
     // Mainly clear
-    case  1:
+    case 1:
       return is_day
-        ? &icon_mostly_sunny
-        : &icon_mostly_clear_night;
+               ? &icon_mostly_sunny
+               : &icon_mostly_clear_night;
 
     // Partly cloudy
-    case  2:
+    case 2:
       return is_day
-        ? &icon_partly_cloudy
-        : &icon_partly_cloudy_night;
+               ? &icon_partly_cloudy
+               : &icon_partly_cloudy_night;
 
     // Overcast
-    case  3:
+    case 3:
       return &icon_cloudy;
 
     // Fog / mist
@@ -1269,8 +1271,8 @@ const lv_img_dsc_t* choose_icon(int code, int is_day) {
     // Rain: slight showers
     case 61:
       return is_day
-        ? &icon_scattered_showers_day
-        : &icon_scattered_showers_night;
+               ? &icon_scattered_showers_day
+               : &icon_scattered_showers_night;
 
     // Rain: moderate
     case 63:
@@ -1300,8 +1302,8 @@ const lv_img_dsc_t* choose_icon(int code, int is_day) {
     case 80:
     case 81:
       return is_day
-        ? &icon_scattered_showers_day
-        : &icon_scattered_showers_night;
+               ? &icon_scattered_showers_day
+               : &icon_scattered_showers_night;
 
     // Rain showers: violent
     case 82:
@@ -1314,8 +1316,8 @@ const lv_img_dsc_t* choose_icon(int code, int is_day) {
     // Thunderstorm (light)
     case 95:
       return is_day
-        ? &icon_isolated_scattered_tstorms_day
-        : &icon_isolated_scattered_tstorms_night;
+               ? &icon_isolated_scattered_tstorms_day
+               : &icon_isolated_scattered_tstorms_night;
 
     // Thunderstorm with hail
     case 96:
@@ -1325,7 +1327,7 @@ const lv_img_dsc_t* choose_icon(int code, int is_day) {
     // Fallback for any other code
     default:
       return is_day
-        ? &icon_mostly_cloudy_day
-        : &icon_mostly_cloudy_night;
+               ? &icon_mostly_cloudy_day
+               : &icon_mostly_cloudy_night;
   }
 }
